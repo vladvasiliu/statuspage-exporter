@@ -1,0 +1,25 @@
+[package]
+name = "statuspage-exporter"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = { version = "1", features = ["backtrace"] }
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+prometheus = { version = "0.13", features = ["process"] }
+reqwest = { version = "0.11", features = [ "rustls-tls",  "json"] }
+serde = { version = "~1", features = ["derive"] }
+serde_json = "~1"
+tokio = { version = "1", features = ["rt", "macros", "parking_lot"] }
+tracing = "0.1"
+tracing-error = { version = "0.2.0", features = ["traced-error"] }
+
+
+[profile.release]
+lto = true
+incremental = true
+codegen-units = 1
+panic = "abort"

@@ -1,0 +1,28 @@
+minimum_pre_commit_version: 2.10.0
+exclude: '^.idea'
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 8fe62d14e0b4d7d845a7022c5c2c3ae41bdd3f26  # frozen: v4.1.0
+    hooks:
+      - id: fix-byte-order-marker
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-merge-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: check-vcs-permalinks
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+  - repo: https://github.com/Yelp/detect-secrets.git
+    rev: 70e6cf69f2d544a49729039a374d86d7b3e472d9  # frozen: v1.2.0
+    hooks:
+      - id: detect-secrets
+        #        args: ['--baseline', '.secrets.baseline']
+        exclude: "(Cargo.lock)|(.pre-commit-config.yaml)"
+  - repo: https://github.com/AleksaC/hadolint-py
+    rev: b6bdbeb818b06c5ad71ef3cb687d9514d44fc7b7  # frozen: v2.9.3
+    hooks:
+      - id: hadolint
