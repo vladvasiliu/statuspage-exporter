@@ -2,9 +2,13 @@ use anyhow::Result;
 
 mod scrapers;
 
+static _DEFAULT_PORT: u32 = 9919;
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
-    let akamai_scraper = scrapers::akamai::AkamaiScraper {};
-    println!("{:?}", akamai_scraper.get_status().await?);
+    let scraper = scrapers::Scraper {
+        url: "https://payline.statuspage.io/api/v2/summary.json",
+    };
+    scraper.get_status().await?;
     Ok(())
 }
