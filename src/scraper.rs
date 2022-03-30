@@ -1,10 +1,10 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use prometheus::{opts, IntGaugeVec, Registry};
+use prometheus::{opts, IntGauge, IntGaugeVec, Registry};
 use serde::Deserialize;
-use strum::{EnumIter, EnumString, IntoEnumIterator, IntoStaticStr};
+use strum::{EnumIter, IntoEnumIterator, IntoStaticStr};
 
-#[derive(Debug, Deserialize, EnumIter, EnumString, IntoStaticStr, PartialEq)]
+#[derive(Debug, Deserialize, EnumIter, IntoStaticStr, PartialEq)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 enum StatusIndicator {
@@ -25,7 +25,7 @@ struct StatusPageResponseStatus {
     // description: String,
 }
 
-#[derive(Debug, Deserialize, EnumIter, EnumString, IntoStaticStr, PartialEq)]
+#[derive(Debug, Deserialize, EnumIter, IntoStaticStr, PartialEq)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 enum ComponentStatus {
@@ -72,6 +72,16 @@ impl StatusPageResponse {
         Ok(metrics_vec)
     }
 
+    fn get_overall_timestamp(&self) -> Result<IntGauge> {
+        let timestamp = self.page.updated_at.timestamp();
+        let metric = IntGauge::new(
+            "status_page_timestamp",
+            "Timestamp of last update of the status element",
+        )?;
+        metric.set(timestamp);
+        Ok(metric)
+    }
+
     fn get_component_status(&self) -> Result<IntGaugeVec> {
         let metrics_vec = IntGaugeVec::new(
             opts!(
@@ -96,6 +106,23 @@ impl StatusPageResponse {
 
         Ok(metrics_vec)
     }
+
+    fn get_component_timestamp(&self) -> Result<IntGaugeVec> {
+        let metrics_vec = IntGaugeVec::new(
+            opts!(
+                "status_page_component_timestamp",
+                "Last update timestamp of the componet"
+            ),
+            &["component"],
+        )?;
+
+        for component in &self.components {
+            metrics_vec
+                .get_metric_with_label_values(&[&component.name])?
+                .set(component.updated_at.timestamp());
+        }
+        Ok(metrics_vec)
+    }
 }
 
 pub struct Scraper {
@@ -112,6 +139,8 @@ impl Scraper {
         let registry = Registry::new();
         registry.register(Box::new(result.get_component_status()?))?;
         registry.register(Box::new(result.get_overall_status()?))?;
+        registry.register(Box::new(result.get_overall_timestamp()?))?;
+        registry.register(Box::new(result.get_component_timestamp()?))?;
 
         Ok(registry)
     }
