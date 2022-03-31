@@ -51,7 +51,7 @@ async fn main() -> Result<()> {
         .with(ErrorLayer::default())
         .init();
 
-    let bind_addr = env::var("ES_QUERY_PROM_LISTEN")
+    let bind_addr = env::var("STATUSPAGE_EXPORTER_LISTEN")
         .unwrap_or_else(|_| DEFAULT_BIND.to_string())
         .parse::<SocketAddr>()?;
 
