@@ -55,7 +55,7 @@ impl StatusPageResponse {
     fn get_overall_status(&self) -> Result<IntGaugeVec> {
         let metrics_vec = IntGaugeVec::new(
             opts!(
-                "status_page_overall",
+                "statuspage_overall",
                 "Overall status of this service, from the status element"
             ),
             &["indicator"],
@@ -77,7 +77,7 @@ impl StatusPageResponse {
     fn get_overall_timestamp(&self) -> Result<IntGauge> {
         let timestamp = self.page.updated_at.timestamp();
         let metric = IntGauge::new(
-            "status_page_timestamp",
+            "statuspage_timestamp",
             "Timestamp of last update of the status element",
         )?;
         metric.set(timestamp);
@@ -87,7 +87,7 @@ impl StatusPageResponse {
     fn get_component_status(&self) -> Result<IntGaugeVec> {
         let metrics_vec = IntGaugeVec::new(
             opts!(
-                "status_page_component",
+                "statuspage_component",
                 "Per component status of this service, from the components element"
             ),
             &["component", "status"],
@@ -112,7 +112,7 @@ impl StatusPageResponse {
     fn get_component_timestamp(&self) -> Result<IntGaugeVec> {
         let metrics_vec = IntGaugeVec::new(
             opts!(
-                "status_page_component_timestamp",
+                "statuspage_component_timestamp",
                 "Last update timestamp of the componet"
             ),
             &["component"],
@@ -161,7 +161,7 @@ impl Scraper {
 
     pub async fn probe(&self) -> Result<&Registry> {
         let success_metric = IntGauge::new(
-            "status_page_probe_success",
+            "statuspage_probe_success",
             "Whether all queries were successful",
         )?;
         match self.get_status().await {
