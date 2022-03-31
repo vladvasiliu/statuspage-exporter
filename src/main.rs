@@ -4,14 +4,16 @@ use axum::http::StatusCode;
 use axum::{routing::get, Router};
 use prometheus::TextEncoder;
 use serde::Deserialize;
-use tracing::{error, instrument};
+use std::env;
+use std::net::SocketAddr;
+use tracing::{error, info, instrument};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::prelude::*;
 use url::Url;
 
 mod scraper;
 
-static DEFAULT_PORT: u32 = 9925;
+static DEFAULT_BIND: &str = "127.0.0.1:9925";
 
 #[derive(Deserialize, Debug)]
 struct Target {
@@ -49,7 +51,12 @@ async fn main() -> Result<()> {
         .with(ErrorLayer::default())
         .init();
 
-    let bind_addr = format!("0.0.0.0:{}", DEFAULT_PORT).parse()?;
+    let bind_addr = env::var("ES_QUERY_PROM_LISTEN")
+        .unwrap_or_else(|_| DEFAULT_BIND.to_string())
+        .parse::<SocketAddr>()?;
+
+    info!("Listening on {}", bind_addr);
+
     let app = Router::new().route("/probe", get(work));
     axum::Server::bind(&bind_addr)
         .serve(app.into_make_service())
