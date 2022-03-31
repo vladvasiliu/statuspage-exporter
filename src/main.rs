@@ -11,7 +11,7 @@ use url::Url;
 
 mod scraper;
 
-static _DEFAULT_PORT: u32 = 9919;
+static DEFAULT_PORT: u32 = 9925;
 
 #[derive(Deserialize, Debug)]
 struct Target {
@@ -20,10 +20,7 @@ struct Target {
 
 #[instrument]
 async fn work(target: Query<Target>) -> Result<String, StatusCode> {
-    let scraper = scraper::Scraper::new(
-        // url: "https://payline.statuspage.io/api/v2/summary.json",
-        target.target.clone(),
-    );
+    let scraper = scraper::Scraper::new(target.target.clone());
 
     match scraper.probe().await {
         Ok(registry) => {
@@ -52,8 +49,9 @@ async fn main() -> Result<()> {
         .with(ErrorLayer::default())
         .init();
 
+    let bind_addr = format!("0.0.0.0:{}", DEFAULT_PORT).parse()?;
     let app = Router::new().route("/probe", get(work));
-    axum::Server::bind(&"0.0.0.0:8000".parse().unwrap())
+    axum::Server::bind(&bind_addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
