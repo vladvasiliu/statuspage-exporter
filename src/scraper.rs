@@ -4,6 +4,7 @@ use prometheus::{opts, IntGauge, IntGaugeVec, Registry};
 use reqwest::Url;
 use serde::Deserialize;
 use strum::{EnumIter, IntoEnumIterator, IntoStaticStr};
+use tracing::error;
 
 #[derive(Debug, Deserialize, EnumIter, IntoStaticStr, PartialEq)]
 #[serde(rename_all = "snake_case")]
@@ -128,22 +129,46 @@ impl StatusPageResponse {
 
 pub struct Scraper {
     // pub url: &'static str,
-    pub url: Url,
+    url: Url,
+    registry: Registry,
 }
 
 impl Scraper {
-    pub async fn get_status(self) -> Result<Registry> {
-        let result = reqwest::get(self.url)
+    pub fn new(url: Url) -> Self {
+        Self {
+            url,
+            registry: Registry::new(),
+        }
+    }
+
+    async fn get_status(&self) -> Result<()> {
+        let result = reqwest::get(self.url.clone())
             .await?
             .json::<StatusPageResponse>()
             .await?;
 
-        let registry = Registry::new();
-        registry.register(Box::new(result.get_component_status()?))?;
-        registry.register(Box::new(result.get_overall_status()?))?;
-        registry.register(Box::new(result.get_overall_timestamp()?))?;
-        registry.register(Box::new(result.get_component_timestamp()?))?;
+        self.registry
+            .register(Box::new(result.get_overall_status()?))?;
+        self.registry
+            .register(Box::new(result.get_overall_timestamp()?))?;
+        self.registry
+            .register(Box::new(result.get_component_status()?))?;
+        self.registry
+            .register(Box::new(result.get_component_timestamp()?))?;
 
-        Ok(registry)
+        Ok(())
+    }
+
+    pub async fn probe(&self) -> Result<&Registry> {
+        let success_metric = IntGauge::new(
+            "status_page_probe_success",
+            "Whether all queries were successful",
+        )?;
+        match self.get_status().await {
+            Ok(()) => success_metric.set(1),
+            Err(err) => error!("Probe failed: {}", err),
+        }
+        self.registry.register(Box::new(success_metric))?;
+        Ok(&self.registry)
     }
 }
