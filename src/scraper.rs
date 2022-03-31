@@ -1,6 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use prometheus::{opts, IntGauge, IntGaugeVec, Registry};
+use reqwest::Url;
 use serde::Deserialize;
 use strum::{EnumIter, IntoEnumIterator, IntoStaticStr};
 
@@ -126,7 +127,8 @@ impl StatusPageResponse {
 }
 
 pub struct Scraper {
-    pub url: &'static str,
+    // pub url: &'static str,
+    pub url: Url,
 }
 
 impl Scraper {
