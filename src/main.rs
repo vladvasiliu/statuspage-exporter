@@ -3,7 +3,7 @@ use axum::extract::Query;
 use axum::http::StatusCode;
 use axum::{routing::get, Router};
 use lazy_static::lazy_static;
-use prometheus::{default_registry, opts, register_int_counter_vec, IntCounterVec, TextEncoder};
+use prometheus::{opts, register_int_counter_vec, IntCounterVec, TextEncoder, gather, register_int_gauge_vec};
 use serde::Deserialize;
 use std::env;
 use std::net::SocketAddr;
@@ -70,7 +70,7 @@ async fn probe(target: Query<Target>) -> Result<String, StatusCode> {
 #[instrument]
 async fn metrics() -> Result<String, StatusCode> {
     let encoder = TextEncoder::new();
-    let metric_families = default_registry().gather();
+    let metric_families = gather();
     match encoder.encode_to_string(&metric_families) {
         Ok(s) => Ok(s),
         Err(err) => {
@@ -93,6 +93,10 @@ async fn main() -> Result<()> {
         .parse::<SocketAddr>()?;
 
     info!("Listening on {}", bind_addr);
+
+    let version = env!("CARGO_PKG_VERSION");
+    register_int_gauge_vec!(opts!("statuspage_info", "statuspage exporter version information"), &["version"])?.get_metric_with_label_values(&[version]).expect("Failed to get info metric").set(1);
+
 
     let app = Router::new()
         .route("/probe", get(probe))
