@@ -2,7 +2,8 @@ use anyhow::Result;
 use axum::extract::Query;
 use axum::http::StatusCode;
 use axum::{routing::get, Router};
-use prometheus::TextEncoder;
+use lazy_static::lazy_static;
+use prometheus::{default_registry, opts, register_int_counter_vec, IntCounterVec, TextEncoder};
 use serde::Deserialize;
 use std::env;
 use std::net::SocketAddr;
@@ -15,16 +16,27 @@ mod scraper;
 
 static DEFAULT_BIND: &str = "127.0.0.1:9925";
 
+lazy_static! {
+    static ref PROBES_TOTAL: IntCounterVec = register_int_counter_vec!(
+        opts!(
+            "probes_total",
+            "Total number of handled probes, by returned request code"
+        ),
+        &["code"]
+    )
+    .expect("Failed to register probes_total metric");
+}
+
 #[derive(Deserialize, Debug)]
 struct Target {
     target: Url,
 }
 
 #[instrument]
-async fn work(target: Query<Target>) -> Result<String, StatusCode> {
+async fn probe(target: Query<Target>) -> Result<String, StatusCode> {
     let scraper = scraper::Scraper::new(target.target.clone());
 
-    match scraper.probe().await {
+    let result = match scraper.probe().await {
         Ok(registry) => {
             let encoder = TextEncoder::new();
             let metric_families = registry.gather();
@@ -38,6 +50,31 @@ async fn work(target: Query<Target>) -> Result<String, StatusCode> {
         }
         Err(err) => {
             error!("Handling probe failed: {}", err);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    };
+
+    let code = match result {
+        Ok(_) => 200,
+        Err(code) => code.as_u16(),
+    };
+
+    PROBES_TOTAL
+        .get_metric_with_label_values(&[&code.to_string()])
+        .expect("Failed to retrieve probes_total metric")
+        .inc();
+
+    result
+}
+
+#[instrument]
+async fn metrics() -> Result<String, StatusCode> {
+    let encoder = TextEncoder::new();
+    let metric_families = default_registry().gather();
+    match encoder.encode_to_string(&metric_families) {
+        Ok(s) => Ok(s),
+        Err(err) => {
+            error!("Failed to encode metrics: {}", err);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
@@ -57,7 +94,9 @@ async fn main() -> Result<()> {
 
     info!("Listening on {}", bind_addr);
 
-    let app = Router::new().route("/probe", get(work));
+    let app = Router::new()
+        .route("/probe", get(probe))
+        .route("/metrics", get(metrics));
     axum::Server::bind(&bind_addr)
         .serve(app.into_make_service())
         .await
