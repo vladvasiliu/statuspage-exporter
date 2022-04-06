@@ -23,6 +23,6 @@ repos:
         #        args: ['--baseline', '.secrets.baseline']
         exclude: "(Cargo.lock)|(.pre-commit-config.yaml)"
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: b6bdbeb818b06c5ad71ef3cb687d9514d44fc7b7  # frozen: v2.9.3
+    rev: ecf2d2c004e7a753f48e44952a81d7c9cf1f202c  # frozen: v2.10.0
     hooks:
       - id: hadolint
