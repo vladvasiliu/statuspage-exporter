@@ -1,9 +1,12 @@
 use anyhow::Result;
 use axum::extract::Query;
 use axum::http::StatusCode;
+use axum::response::Html;
 use axum::{routing::get, Router};
 use lazy_static::lazy_static;
-use prometheus::{opts, register_int_counter_vec, IntCounterVec, TextEncoder, gather, register_int_gauge_vec};
+use prometheus::{
+    gather, opts, register_int_counter_vec, register_int_gauge_vec, IntCounterVec, TextEncoder,
+};
 use serde::Deserialize;
 use std::env;
 use std::net::SocketAddr;
@@ -25,6 +28,19 @@ lazy_static! {
         &["code"]
     )
     .expect("Failed to register probes_total metric");
+}
+
+lazy_static! {
+    static ref HOMEPAGE: Html<&'static str> = "<html>
+    <head><title>Statuspage Exporter</title></head>
+    <body>
+        <h1>Statuspage Exporter</h1>
+        <p>Export metrics from statuspage.io</p>
+        <p><a href=\"/metrics\">Metrics</a></p>
+        <p><a href=\"/probe\">Probe</a></p>
+    </body>
+</html>"
+        .into();
 }
 
 #[derive(Deserialize, Debug)]
@@ -80,6 +96,11 @@ async fn metrics() -> Result<String, StatusCode> {
     }
 }
 
+#[instrument]
+async fn home() -> Html<&'static str> {
+    *HOMEPAGE
+}
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
@@ -95,10 +116,16 @@ async fn main() -> Result<()> {
     info!("Listening on {}", bind_addr);
 
     let version = env!("CARGO_PKG_VERSION");
-    register_int_gauge_vec!(opts!("statuspage_info", "statuspage exporter version information"), &["version"])?.get_metric_with_label_values(&[version]).expect("Failed to get info metric").set(1);
-
+    register_int_gauge_vec!(
+        opts!("statuspage_info", "statuspage exporter version information"),
+        &["version"]
+    )?
+    .get_metric_with_label_values(&[version])
+    .expect("Failed to get info metric")
+    .set(1);
 
     let app = Router::new()
+        .route("/", get(home))
         .route("/probe", get(probe))
         .route("/metrics", get(metrics));
     axum::Server::bind(&bind_addr)
