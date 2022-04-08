@@ -4,8 +4,6 @@ ARG DEBIAN_VERSION="bullseye"
 
 FROM rust:${RUST_VERSION}-${DEBIAN_VERSION} as builder
 
-ARG VERSION
-
 WORKDIR /code
 COPY . /code
 
@@ -13,11 +11,7 @@ SHELL ["/bin/bash", "-c", "-o", "pipefail"]
 RUN cargo build --release
 
 
-FROM debian:${DEBIAN_VERSION}
-
-ARG VERSION
-ARG BUILD_DATE
-ARG GIT_HASH
+FROM debian:${DEBIAN_VERSION}-slim
 
 LABEL org.opencontainers.image.authors="Vlad Vasiliu"
 
