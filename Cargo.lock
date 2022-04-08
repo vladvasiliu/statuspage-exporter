@@ -1012,7 +1012,7 @@ dependencies = [
 
 [[package]]
 name = "statuspage-exporter"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "anyhow",
  "axum",
