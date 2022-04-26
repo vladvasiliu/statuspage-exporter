@@ -3,9 +3,24 @@
 
 Exports service status from statuspage.io for Prometheus consumtion.
 
+
 ## Project status
 
 The project is in its early stages of development, so breaking changes may happen at any time.
+
+
+## !! WARNING !!
+
+This program allows making requests to arbitrary URLs.
+Make sur you understand the implications of deploying this in your infrastructure!
+
+This exporter being similar to [blackbox_exporter](https://github.com/prometheus/blackbox_exporter), please read the
+[exporters section](https://prometheus.io/docs/operating/security/#exporters) of the official docs.
+
+If running on AWS, you may want to make sure you're using
+[IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) and limit the
+role's permissions and network access to the absolute minimum.
+
 
 ## Running
 
@@ -17,9 +32,10 @@ docker run ghcr.io/vladvasiliu/statuspage-exporter:latest
 
 It will listen on port 9925. It exposes two endpoints.
 
+
 ### `/probe` endpoint
 
-This endpoint scrapes information from the statuspage.io domain you want to query.
+This endpoint scrapes information from the statuspage.io domain you want to query. Please see the warning above.
 
 It exports the overall status, the component status, and their respective latest update timestamp.
 
@@ -85,6 +101,7 @@ statuspage_probe_success 1
 # TYPE statuspage_timestamp gauge
 statuspage_timestamp 1648422629
 ```
+
 
 ### `/metrics` endpoint
 
