@@ -10,6 +10,7 @@ use tracing::error;
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 enum StatusIndicator {
+    Maintenance,
     Critical,
     Major,
     Minor,
@@ -35,6 +36,7 @@ enum ComponentStatus {
     DegradedPerformance,
     PartialOutage,
     MajorOutage,
+    UnderMaintenance,
 }
 
 #[derive(Debug, Deserialize)]
