@@ -1,12 +1,12 @@
 [package]
 name = "statuspage-exporter"
-version = "0.3.3"
+version = "0.3.4"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-axum = { version = "^0.4", features = ["http2"] }
+axum = { version = "^0.5", features = ["http2"] }
 anyhow = { version = "1", features = ["backtrace"] }
 chrono = { version = "^0.4", features = ["serde"] }
 lazy_static = "1"
