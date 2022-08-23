@@ -1,4 +1,4 @@
-ARG RUST_VERSION="1.62.0"
+ARG RUST_VERSION="1.63.0"
 ARG DEBIAN_VERSION="bullseye"
 
 
@@ -18,7 +18,7 @@ LABEL org.opencontainers.image.authors="Vlad Vasiliu"
 EXPOSE 9925
 ENV STATUSPAGE_EXPORTER_LISTEN="0.0.0.0:9925"
 
-RUN apt-get update && apt-get install --no-install-recommends -y curl=7.74.0-1.3+deb11u1 ca-certificates=20210119 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install --no-install-recommends -y curl=7.74.0-1.3+deb11u2 ca-certificates=20210119 && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /code/target/release/statuspage-exporter /
 

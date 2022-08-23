@@ -2,7 +2,7 @@ minimum_pre_commit_version: 2.10.0
 exclude: '^.idea'
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: db7346d375eda68a0174f2c057dd97f2fbffe030  # frozen: v4.2.0
+    rev: 3298ddab3c13dd77d6ce1fc0baf97691430d84b0  # frozen: v4.3.0
     hooks:
       - id: fix-byte-order-marker
       - id: check-case-conflict
@@ -17,7 +17,7 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: https://github.com/Yelp/detect-secrets.git
-    rev: 70e6cf69f2d544a49729039a374d86d7b3e472d9  # frozen: v1.2.0
+    rev: 4d855d36b48af9b90156971bc6ff18e91c0fa677  # frozen: v1.3.0
     hooks:
       - id: detect-secrets
         #        args: ['--baseline', '.secrets.baseline']
