@@ -8,7 +8,7 @@ WORKDIR /code
 COPY . /code
 
 SHELL ["/bin/bash", "-c", "-o", "pipefail"]
-RUN cargo build --release
+RUN cargo --config net.git-fetch-with-cli=true build --release
 
 
 # hadolint ignore=DL3007
