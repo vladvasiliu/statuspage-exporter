@@ -1,14 +1,16 @@
-ARG RUST_VERSION="1.66.0"
+ARG RUST_VERSION="1.67.0"
 ARG DEBIAN_VERSION="bullseye"
 
 
 FROM rust:${RUST_VERSION}-${DEBIAN_VERSION} as builder
 
+RUN cargo install cargo-auditable
+
 WORKDIR /code
 COPY . /code
 
 SHELL ["/bin/bash", "-c", "-o", "pipefail"]
-RUN cargo --config net.git-fetch-with-cli=true build --release
+RUN cargo --config net.git-fetch-with-cli=true auditable build --release
 
 
 # hadolint ignore=DL3007
