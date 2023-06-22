@@ -1,5 +1,5 @@
-ARG RUST_VERSION="1.67.0"
-ARG DEBIAN_VERSION="bullseye"
+ARG RUST_VERSION="1.70.0"
+ARG DEBIAN_VERSION="bookworm"
 
 
 FROM rust:${RUST_VERSION}-${DEBIAN_VERSION} as builder
@@ -9,7 +9,6 @@ RUN cargo install cargo-auditable
 WORKDIR /code
 COPY . /code
 
-SHELL ["/bin/bash", "-c", "-o", "pipefail"]
 RUN cargo --config net.git-fetch-with-cli=true auditable build --release
 
 
