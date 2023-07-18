@@ -1,8 +1,7 @@
 [![License](https://img.shields.io/github/license/vladvasiliu/statuspage-exporter)](COPYING)
 # statuspage-exporter
 
-Exports service status from statuspage.io for Prometheus consumtion.
-
+Exports service status from [Atlassian StatusPage](https://www.atlassian.com/software/statuspage) (eg statuspage.io) for Prometheus consumption.
 
 ## Project status
 
@@ -12,7 +11,7 @@ The project is in its early stages of development, so breaking changes may happe
 ## !! WARNING !!
 
 This program allows making requests to arbitrary URLs.
-Make sur you understand the implications of deploying this in your infrastructure!
+Make sure you understand the implications of deploying this in your infrastructure!
 
 This exporter being similar to [blackbox_exporter](https://github.com/prometheus/blackbox_exporter), please read the
 [exporters section](https://prometheus.io/docs/operating/security/#exporters) of the official docs.
@@ -21,6 +20,11 @@ If running on AWS, you may want to make sure you're using
 [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) and limit the
 role's permissions and network access to the absolute minimum.
 
+## Configuration
+This exporter is configured through environment variables only. The following are available (default value shown)
+```
+STATUSPAGE_EXPORTER_LISTEN='127.0.0.1:9925'
+```
 
 ## Running
 

@@ -115,7 +115,7 @@ impl StatusPageResponse {
         let metrics_vec = IntGaugeVec::new(
             opts!(
                 "statuspage_component_timestamp",
-                "Last update timestamp of the componet"
+                "Last update timestamp of the component"
             ),
             &["component"],
         )?;
