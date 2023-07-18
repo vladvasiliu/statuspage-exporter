@@ -1,5 +1,5 @@
 ARG RUST_VERSION="1.70.0"
-ARG DEBIAN_VERSION="bookworm"
+ARG DEBIAN_VERSION="bullseye"
 
 
 FROM rust:${RUST_VERSION}-${DEBIAN_VERSION} as builder
