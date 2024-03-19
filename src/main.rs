@@ -128,10 +128,9 @@ async fn main() -> Result<()> {
         .route("/", get(home))
         .route("/probe", get(probe))
         .route("/metrics", get(metrics));
-    axum::Server::bind(&bind_addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    
+    let listener = tokio::net::TcpListener::bind(&bind_addr).await?;
+    axum::serve(listener, app).await.unwrap();
 
     Ok(())
 }
