@@ -1,22 +1,20 @@
 [package]
 name = "statuspage-exporter"
-version = "0.4.5"
-edition = "2021"
+version = "0.4.6"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-axum = { version = "0.7", default_features = false, features = ["http1", "query", "tokio"] }
+axum = { version = "0.8", default-features = false, features = ["http1", "query", "tokio"] }
 anyhow = { version = "1", features = ["backtrace"] }
 chrono = { version = "^0.4", features = ["serde"] }
 lazy_static = "1"
-percent-encoding = "2"
 url = { version = "2", features = ["serde"] }
 prometheus = { version = "^0.13", features = ["process"] }
-reqwest = { version = "^0.11", default_features = false, features = ["gzip", "json", "rustls-tls"] }
+reqwest = { version = "^0.12", default-features = false, features = ["gzip", "json", "rustls-tls"] }
 serde = { version = "~1", features = ["derive"] }
-serde_json = "~1"
-strum = { version = "^0.26", features = ["derive"] }
+strum = { version = "^0.27", features = ["derive"] }
 tokio = { version = "1", features = ["rt", "macros", "parking_lot"] }
 tracing = "^0.1"
 tracing-error = { version = "^0.2", features = ["traced-error"] }
