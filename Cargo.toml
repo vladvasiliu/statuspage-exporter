@@ -1,6 +1,6 @@
 [package]
 name = "statuspage-exporter"
-version = "0.4.6"
+version = "0.5.0"
 edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,10 +11,10 @@ anyhow = { version = "1", features = ["backtrace"] }
 chrono = { version = "^0.4", features = ["serde"] }
 lazy_static = "1"
 url = { version = "2", features = ["serde"] }
-prometheus = { version = "^0.13", features = ["process"] }
-reqwest = { version = "^0.12", default-features = false, features = ["gzip", "json", "rustls-tls"] }
+prometheus = { version = "0.14", features = ["process"] }
+reqwest = { version = "^0.13", default-features = false, features = ["json", "rustls"] }
 serde = { version = "~1", features = ["derive"] }
-strum = { version = "^0.27", features = ["derive"] }
+strum = { version = "^0.28", features = ["derive"] }
 tokio = { version = "1", features = ["rt", "macros", "parking_lot"] }
 tracing = "^0.1"
 tracing-error = { version = "^0.2", features = ["traced-error"] }

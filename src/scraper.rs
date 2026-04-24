@@ -1,3 +1,4 @@
+use std::time::Duration;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use prometheus::{opts, IntGauge, IntGaugeVec, Registry};
@@ -69,8 +70,9 @@ impl StatusPageResponse {
             } else {
                 0
             };
+            let label: &str = indicator_value.into();
             metrics_vec
-                .get_metric_with_label_values(&[indicator_value.into()])?
+                .get_metric_with_label_values(&[label])?
                 .set(gauge_value);
         }
         Ok(metrics_vec)
@@ -102,8 +104,9 @@ impl StatusPageResponse {
                 } else {
                     0
                 };
+                let status_label: &str = status_value.into();
                 metrics_vec
-                    .get_metric_with_label_values(&[&component.name, status_value.into()])?
+                    .get_metric_with_label_values(&[component.name.as_str(), status_label])?
                     .set(gauge_value);
             }
         }
@@ -144,7 +147,8 @@ impl Scraper {
     }
 
     async fn get_status(&self) -> Result<()> {
-        let result = reqwest::get(self.url.clone())
+        let client = reqwest::Client::builder().timeout(Duration::from_secs(5)).build()?;
+        let result = client.get(self.url.clone()).send()
             .await?
             .json::<StatusPageResponse>()
             .await?;
